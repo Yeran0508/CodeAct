@@ -22,6 +22,7 @@ M0 is a Python library, not an HTTP service.
 - answer: final answer when completed
 - stop_reason: completed, max_steps, failure_limit, or approval_denied
 - steps: ordered action, policy, and observation records
+- rolled_back: whether a failed mutating step restored its pre-execution snapshot
 
 The model adapter and approval UI are interfaces. Provider credentials and UI concerns do not
 belong in the core runtime.

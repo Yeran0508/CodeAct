@@ -21,10 +21,15 @@ AgentRuntime owns deterministic control flow. A model adapter only proposes a ty
 cannot execute code. ActionPolicy classifies it before DockerExecutor starts a disposable
 container and converts the process result into an Observation.
 
+For WRITE and HIGH_RISK actions, AgentRuntime asks WorkspaceManager for a snapshot before calling
+the executor. A successful action keeps its changes and closes the snapshot. A failed or timed-out
+action restores the previous tree before its observation reaches the next model step. Snapshots
+live beside the workspace rather than inside the model-visible directory.
+
 The executor disables networking, limits CPU, memory and PIDs, drops Linux capabilities, sets
 no-new-privileges, and runs as UID/GID 65534. The task workspace is the only writable bind mount.
-This is a development boundary, not a hardened multi-tenant claim. M1 must address snapshots,
-symlinks, approval integrity, audit logs, and adversarial tests before untrusted use.
+This is a development boundary, not a hardened multi-tenant claim. Later M1 modules must address
+approval integrity, audit logs, and adversarial tests before untrusted use.
 
 ## Trust boundaries
 

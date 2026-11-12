@@ -21,6 +21,8 @@ class FakeExecutor:
 
     def execute(self, action, workspace):
         self.calls += 1
+        if action.code == "touch state.txt":
+            (workspace / "state.txt").write_text("changed")
         return next(self.observations)
 
 
@@ -80,3 +82,25 @@ def test_runtime_stops_at_step_budget(tmp_path: Path) -> None:
     model = ScriptedModel([Action.execute("1", CodeLanguage.PYTHON)])
     runtime = AgentRuntime(model, FakeExecutor([observation()]), max_steps=1)
     assert runtime.run("task", tmp_path).stop_reason is StopReason.MAX_STEPS
+
+
+def test_runtime_rolls_back_failed_mutation(tmp_path: Path) -> None:
+    (tmp_path / "state.txt").write_text("original")
+    model = ScriptedModel(
+        [Action.execute("touch state.txt", CodeLanguage.BASH), Action.finish("done")]
+    )
+    runtime = AgentRuntime(model, FakeExecutor([observation(1)]))
+    result = runtime.run("task", tmp_path)
+    assert result.steps[0].rolled_back
+    assert (tmp_path / "state.txt").read_text() == "original"
+
+
+def test_runtime_keeps_successful_mutation(tmp_path: Path) -> None:
+    (tmp_path / "state.txt").write_text("original")
+    model = ScriptedModel(
+        [Action.execute("touch state.txt", CodeLanguage.BASH), Action.finish("done")]
+    )
+    runtime = AgentRuntime(model, FakeExecutor([observation()]))
+    result = runtime.run("task", tmp_path)
+    assert not result.steps[0].rolled_back
+    assert (tmp_path / "state.txt").read_text() == "changed"

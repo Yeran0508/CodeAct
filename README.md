@@ -15,9 +15,11 @@ M0 is implemented as a testable library baseline:
 - deny-by-default approval for statically detected high-risk behavior;
 - disposable Docker execution with networking disabled, resource limits, non-root UID, dropped
   capabilities, no-new-privileges, timeouts, and output truncation;
+- isolated run workspaces plus pre-mutation snapshots and automatic rollback after failed or
+  timed-out write actions;
 - Python 3.12 packaging, Docker test image, Ruff/pytest/coverage gates, and CI.
 
-This checkpoint does not claim an MCP connection, warm container pool, snapshot rollback,
+This checkpoint does not claim an MCP connection, warm container pool,
 SWE-bench result, model-quality improvement, or OpenHands contribution. Those are evidence-gated
 milestones in requirements.md.
 
