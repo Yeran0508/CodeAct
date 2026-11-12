@@ -40,6 +40,12 @@ and are destroyed instead of reused when the lease ends. The containers run non-
 network, a read-only root filesystem, dropped capabilities, no-new-privileges, and CPU, memory,
 PID, workspace, execution-time, and output limits.
 
+M3-C verifies that concurrent acquisition never exceeds the configured capacity, transient
+replacement failures recover without silently shrinking the pool, and unhealthy instances are
+discarded. `scripts/verify_m3.py` performs a real-Docker check for same-session state, different
+container IDs, zero workspace leakage across sessions, and active network, root-filesystem,
+capability, PID, and memory controls.
+
 This checkpoint does not yet claim measured warm-start latency, concurrent isolation acceptance,
 a SWE-bench result, model-quality improvement, or an OpenHands contribution. Those are
 evidence-gated milestones in requirements.md.
@@ -59,7 +65,8 @@ docker compose config --quiet
 
 The default tests mock the process boundary while checking isolation flags. M1 also provides
 opt-in real-Docker tests and scripts/verify_m1.py, which verifies non-root writes, network denial,
-and failed-action rollback. This remains a development sandbox, not a production security claim.
+and failed-action rollback. `PYTHONPATH=backend python3 scripts/verify_m3.py` runs the M3 isolation
+acceptance. This remains a development sandbox, not a production security claim.
 
 ## Documents
 

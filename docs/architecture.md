@@ -78,7 +78,9 @@ another already-warm handle to serve the next acquisition.
 Acquisition has a bounded deadline and discards unhealthy available handles. Pool close is
 idempotent, rejects new work, waits briefly for replacement workers, and destroys both available
 and leased live handles. PoolStats reports target, live, available, leased, and replacements in
-flight without exposing backend-specific state.
+flight without exposing backend-specific state. If asynchronous creation fails, its worker records
+the failure and retries at the configured interval until capacity recovers or close signals it to
+stop; acquisition deadlines remain bounded during an outage.
 
 DockerWarmBackend implements that lifecycle using prestarted, sleeping containers. Each container
 has a tmpfs `/workspace`, so multiple actions in one DockerSandboxSession see the same files while

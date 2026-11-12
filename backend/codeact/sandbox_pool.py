@@ -32,6 +32,7 @@ class PoolStats:
     available: int
     leased: int
     replacements_in_flight: int
+    replacement_failures: int
 
 
 class SandboxLease(Generic[HandleT]):
@@ -62,20 +63,26 @@ class WarmSandboxPool(Generic[HandleT]):
         *,
         size: int = 4,
         acquire_timeout_seconds: float = 10.0,
+        replacement_retry_seconds: float = 0.1,
     ) -> None:
         if size < 1:
             raise ValueError("pool size must be positive")
         if acquire_timeout_seconds <= 0:
             raise ValueError("acquire timeout must be positive")
+        if replacement_retry_seconds <= 0:
+            raise ValueError("replacement retry interval must be positive")
         self.backend = backend
         self.size = size
         self.acquire_timeout_seconds = acquire_timeout_seconds
+        self.replacement_retry_seconds = replacement_retry_seconds
         self._available: queue.Queue[HandleT] = queue.Queue(maxsize=size)
         self._live: set[HandleT] = set()
         self._lock = threading.Lock()
         self._closed = False
         self._started = False
         self._replacement_threads: set[threading.Thread] = set()
+        self._replacement_failures = 0
+        self._close_event = threading.Event()
 
     def start(self) -> None:
         with self._lock:
@@ -157,16 +164,25 @@ class WarmSandboxPool(Generic[HandleT]):
     def _replace_once(self) -> None:
         current = threading.current_thread()
         try:
-            handle = self.backend.create()
-            with self._lock:
-                if self._closed:
-                    destroy = True
-                else:
-                    self._live.add(handle)
-                    self._available.put_nowait(handle)
-                    destroy = False
-            if destroy:
-                self.backend.destroy(handle)
+            while not self._close_event.is_set():
+                try:
+                    handle = self.backend.create()
+                except Exception:
+                    with self._lock:
+                        self._replacement_failures += 1
+                    if self._close_event.wait(self.replacement_retry_seconds):
+                        return
+                    continue
+                with self._lock:
+                    if self._closed:
+                        destroy = True
+                    else:
+                        self._live.add(handle)
+                        self._available.put_nowait(handle)
+                        destroy = False
+                if destroy:
+                    self.backend.destroy(handle)
+                return
         finally:
             with self._lock:
                 self._replacement_threads.discard(current)
@@ -185,6 +201,7 @@ class WarmSandboxPool(Generic[HandleT]):
                 available=available,
                 leased=live - available,
                 replacements_in_flight=len(self._replacement_threads),
+                replacement_failures=self._replacement_failures,
             )
 
     def close(self) -> None:
@@ -192,6 +209,7 @@ class WarmSandboxPool(Generic[HandleT]):
             if self._closed:
                 return
             self._closed = True
+            self._close_event.set()
             threads = tuple(self._replacement_threads)
         for thread in threads:
             thread.join(timeout=5)

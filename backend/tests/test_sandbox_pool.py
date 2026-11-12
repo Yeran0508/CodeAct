@@ -111,6 +111,8 @@ def test_invalid_configuration_and_start_failure_cleanup() -> None:
         WarmSandboxPool(FakeBackend(), size=0)
     with pytest.raises(ValueError, match="timeout"):
         WarmSandboxPool(FakeBackend(), acquire_timeout_seconds=0)
+    with pytest.raises(ValueError, match="retry"):
+        WarmSandboxPool(FakeBackend(), replacement_retry_seconds=0)
 
     class FailingBackend(FakeBackend):
         def create(self) -> int:
@@ -123,3 +125,53 @@ def test_invalid_configuration_and_start_failure_cleanup() -> None:
     with pytest.raises(RuntimeError, match="create failed"):
         pool.start()
     assert backend.destroyed == [1]
+
+
+def test_replacement_retries_after_transient_create_failures() -> None:
+    class FlakyBackend(FakeBackend):
+        failures_remaining = 2
+
+        def create(self) -> int:
+            if self.created and self.failures_remaining:
+                self.failures_remaining -= 1
+                raise RuntimeError("temporary Docker failure")
+            return super().create()
+
+    backend = FlakyBackend()
+    pool = WarmSandboxPool(backend, size=1, replacement_retry_seconds=0.001)
+    pool.start()
+    pool.acquire().release()
+    wait_for_available(pool, 1)
+    assert pool.stats().replacement_failures == 2
+    pool.close()
+
+
+def test_concurrent_acquisition_never_exceeds_pool_capacity() -> None:
+    backend = FakeBackend()
+    pool = WarmSandboxPool(backend, size=2, acquire_timeout_seconds=1)
+    pool.start()
+    active = 0
+    maximum_active = 0
+    lock = threading.Lock()
+    start = threading.Barrier(7)
+
+    def worker() -> None:
+        nonlocal active, maximum_active
+        start.wait()
+        with pool.acquire():
+            with lock:
+                active += 1
+                maximum_active = max(maximum_active, active)
+            time.sleep(0.01)
+            with lock:
+                active -= 1
+
+    workers = [threading.Thread(target=worker) for _ in range(6)]
+    for worker_thread in workers:
+        worker_thread.start()
+    start.wait()
+    for worker_thread in workers:
+        worker_thread.join()
+    assert maximum_active == 2
+    wait_for_available(pool, 2)
+    pool.close()
