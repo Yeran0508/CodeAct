@@ -51,6 +51,10 @@ macOS/Docker Desktop environment, cold create-plus-execute measured 701.654 ms P
 P95; warm health-check-plus-execute measured 241.200 ms P50 and 297.220 ms P95, a 65.62% P50
 reduction. Prewarming and asynchronous replacement are intentionally outside the warm timed region.
 
+M4-A begins context management with one deterministic truncation primitive that returns original
+and removed character metadata, preserves useful head/tail evidence, handles Unicode, and strictly
+honors zero or marker-only budgets.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.

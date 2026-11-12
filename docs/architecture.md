@@ -97,3 +97,11 @@ multi-tenant security boundary.
 
 The loop ends on finish, exhausted steps, too many consecutive failures, or denied approval.
 Runtime ownership prevents the model from silently disabling these limits.
+
+## Context management
+
+All character-bounded text uses one deterministic middle-truncation primitive. It records original
+and removed character counts, preserves the beginning and end when the budget can fit the marker,
+and never exceeds the requested budget, including zero and marker-only budgets. Character counts
+refer to Python Unicode code points rather than provider tokens; token accounting is a separate
+provider-reported concern.
