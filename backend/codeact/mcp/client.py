@@ -214,5 +214,9 @@ class McpClientManager:
             audit_logger=self._audit_logger,
             run_id=self._run_id,
         )
-        client.connect()
+        try:
+            client.connect()
+        except BaseException:
+            client.close()
+            raise
         return client

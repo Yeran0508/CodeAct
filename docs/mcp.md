@@ -54,3 +54,10 @@ sanitizes arguments and content before the hash-chained event reaches disk.
 - [MCP lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)
 - [MCP tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
 - [MCP transports](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
+
+## Reproducible fixture
+
+scripts/mcp_fixture_server.py is a dependency-free stdio server that exposes read_note and
+write_note. scripts/verify_m2.py launches it through the real allowlist and transport, discovers
+both tools, checks denial before approval, issues an exact one-time grant, verifies the mutation,
+and validates six redacted hash-chain events.

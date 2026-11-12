@@ -40,6 +40,9 @@ Status: completed and locally verified on 2026-11-12. See the M1 sandbox accepta
 
 ### M2: MCP integration
 
+Status: completed and locally verified on 2026-11-12 for the pinned 2025-11-25 stdio lifecycle.
+See the M2 MCP acceptance report. Streamable HTTP and the 2026-07-28 lifecycle remain out of scope.
+
 - Standards-compliant MCP client with server allowlist and capability discovery.
 - Tool calls pass through the same policy and audit boundary.
 - Tool output is delimited and treated as untrusted observations.

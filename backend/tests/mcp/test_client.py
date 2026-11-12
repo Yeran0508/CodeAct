@@ -137,3 +137,12 @@ def test_server_config_validates_process_limits() -> None:
         McpServerConfig("fixture", "python", request_timeout_seconds=0)
     with pytest.raises(ValueError, match="message bytes"):
         McpServerConfig("fixture", "python", max_message_bytes=100)
+
+
+def test_manager_closes_transport_when_handshake_fails() -> None:
+    config = McpServerConfig("fixture", "python")
+    transport = FakeTransport([initialize_result("2024-11-05")])
+    manager = McpClientManager([config], transport_factory=lambda selected: transport)
+    with pytest.raises(McpProtocolError, match="unsupported"):
+        manager.connect("fixture")
+    assert transport.closed
