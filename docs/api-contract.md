@@ -36,5 +36,15 @@ M0 is a Python library, not an HTTP service.
 Grants are exact, expiring, and one-time. Changing code, language, action kind, answer, or policy
 reasons invalidates the grant.
 
+## Audit event
+
+- event_type: run_started, action_proposed, approval_denied, execution_finished, or run_finished
+- run_id and timezone-aware timestamp
+- payload: recursively redacted event data
+- previous_hash: prior event hash, or null for the first event
+- event_hash: SHA-256 over canonical event contents
+
+Audit verification returns the event count or raises an integrity error at the first invalid line.
+
 The model adapter and approval UI are interfaces. Provider credentials and UI concerns do not
 belong in the core runtime.

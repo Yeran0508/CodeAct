@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Protocol
 
 from codeact.approval import ApprovalGrant
+from codeact.audit import AuditLogger
 from codeact.executor import Executor
 from codeact.models import (
     Action,
@@ -44,6 +45,7 @@ class AgentRuntime:
         max_steps: int = 10,
         max_consecutive_failures: int = 3,
         workspace_manager: WorkspaceManager | None = None,
+        audit_logger: AuditLogger | None = None,
     ) -> None:
         if max_steps < 1 or max_consecutive_failures < 1:
             raise ValueError("step and failure limits must be positive")
@@ -54,16 +56,41 @@ class AgentRuntime:
         self.max_steps = max_steps
         self.max_consecutive_failures = max_consecutive_failures
         self.workspace_manager = workspace_manager
+        self.audit_logger = audit_logger
 
-    def run(self, task: str, workspace: Path) -> RunResult:
+    def run(self, task: str, workspace: Path, *, run_id: str = "local-run") -> RunResult:
         history: list[StepRecord] = []
         last_observation: Observation | None = None
         failures = 0
+        if self.audit_logger:
+            self.audit_logger.record("run_started", run_id, {"task": task})
+
+        def finish(answer: str, reason: StopReason) -> RunResult:
+            result = RunResult(answer, reason, tuple(history))
+            if self.audit_logger:
+                self.audit_logger.record(
+                    "run_finished",
+                    run_id,
+                    {"answer": answer, "steps": len(history), "stop_reason": reason.value},
+                )
+            return result
+
         for step in range(1, self.max_steps + 1):
             action = self.model.next_action(task, tuple(history), last_observation)
+            if self.audit_logger:
+                self.audit_logger.record(
+                    "action_proposed",
+                    run_id,
+                    {
+                        "code": action.code,
+                        "kind": action.kind.value,
+                        "language": action.language.value,
+                        "step": step,
+                    },
+                )
             if action.kind is ActionKind.FINISH:
                 history.append(StepRecord(step=step, action=action))
-                return RunResult(action.answer, StopReason.COMPLETED, tuple(history))
+                return finish(action.answer, StopReason.COMPLETED)
 
             decision = self.policy.evaluate(action)
             approval = None
@@ -71,7 +98,13 @@ class AgentRuntime:
                 approval = self.approval_gate.authorize(action, decision.reasons)
             if decision.requires_approval and approval is None:
                 history.append(StepRecord(step=step, action=action, policy=decision))
-                return RunResult("", StopReason.APPROVAL_DENIED, tuple(history))
+                if self.audit_logger:
+                    self.audit_logger.record(
+                        "approval_denied",
+                        run_id,
+                        {"reasons": decision.reasons, "step": step},
+                    )
+                return finish("", StopReason.APPROVAL_DENIED)
 
             snapshot = None
             if decision.risk is not RiskLevel.READ_ONLY:
@@ -94,8 +127,23 @@ class AgentRuntime:
                     approval_id=approval.grant_id if approval else None,
                 )
             )
+            if self.audit_logger:
+                self.audit_logger.record(
+                    "execution_finished",
+                    run_id,
+                    {
+                        "approval_id": approval.grant_id if approval else None,
+                        "duration_ms": observation.duration_ms,
+                        "exit_code": observation.exit_code,
+                        "rolled_back": rolled_back,
+                        "stderr": observation.stderr,
+                        "stdout": observation.stdout,
+                        "step": step,
+                        "timed_out": observation.timed_out,
+                    },
+                )
             last_observation = observation
             failures = 0 if observation.succeeded else failures + 1
             if failures >= self.max_consecutive_failures:
-                return RunResult("", StopReason.FAILURE_LIMIT, tuple(history))
-        return RunResult("", StopReason.MAX_STEPS, tuple(history))
+                return finish("", StopReason.FAILURE_LIMIT)
+        return finish("", StopReason.MAX_STEPS)

@@ -31,6 +31,13 @@ answer using canonical JSON. The grant also binds the sorted risk reasons, appro
 timezone-aware issue time, and expiration. BoundApprovalGate accepts an exact match once and then
 removes it, so a grant cannot approve changed code or be replayed.
 
+When configured, AuditLogger records run start, proposed actions, approval denials, execution
+results, rollback status, and terminal results. Explicit configured secrets plus common bearer and
+key-value credentials are redacted recursively before serialization. Each append-only JSONL event
+contains the previous event hash and a hash of its own canonical contents. Verification detects
+edits, deletion from the front or middle, reordering, malformed lines, and broken links. This is
+tamper evidence, not a claim that a host administrator cannot delete the entire log.
+
 The executor disables networking, limits CPU, memory and PIDs, drops Linux capabilities, sets
 no-new-privileges, and runs as UID/GID 65534. The task workspace is the only writable bind mount.
 This is a development boundary, not a hardened multi-tenant claim. Later M1 modules must address
@@ -43,6 +50,7 @@ approval integrity, audit logs, and adversarial tests before untrusted use.
 - The action container never receives the privileged Docker socket.
 - The runtime resolves host paths instead of accepting model-generated host paths.
 - Approval defaults to deny; exact action-bound grants are checked before the executor.
+- Audit files belong outside model-visible workspaces and must be protected by host permissions.
 
 ## Stop conditions
 

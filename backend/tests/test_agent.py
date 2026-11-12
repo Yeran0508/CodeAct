@@ -3,6 +3,7 @@ from pathlib import Path
 
 from codeact.agent import AgentRuntime
 from codeact.approval import ApprovalGrant
+from codeact.audit import AuditLogger, SecretRedactor
 from codeact.models import Action, CodeLanguage, Observation, StopReason
 
 
@@ -113,3 +114,23 @@ def test_runtime_keeps_successful_mutation(tmp_path: Path) -> None:
     result = runtime.run("task", tmp_path)
     assert not result.steps[0].rolled_back
     assert (tmp_path / "state.txt").read_text() == "changed"
+
+
+def test_runtime_writes_redacted_verifiable_audit_events(tmp_path: Path) -> None:
+    audit = AuditLogger(
+        tmp_path / "audit.jsonl",
+        redactor=SecretRedactor(["private-value"]),
+        clock=lambda: datetime.now(UTC),
+    )
+    model = ScriptedModel(
+        [Action.execute("print('private-value')", CodeLanguage.PYTHON), Action.finish("done")]
+    )
+    runtime = AgentRuntime(
+        model,
+        FakeExecutor([Observation("private-value", "", 0, 1)]),
+        audit_logger=audit,
+    )
+    result = runtime.run("task token=private-value", tmp_path, run_id="run-audit")
+    assert result.stop_reason is StopReason.COMPLETED
+    assert audit.verify() == 5
+    assert "private-value" not in audit.path.read_text()
