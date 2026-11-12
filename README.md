@@ -59,6 +59,10 @@ M4-B adds deterministic structured history summaries. They preserve first-seen p
 policy/approval/rollback/exit decisions, and unresolved failures without asking a model to
 paraphrase evidence; canonical JSON makes identical inputs byte-stable.
 
+M4-C separates a SHA-256-identified stable prompt prefix from dynamic task/history data. Optional
+model responses carry provider-reported input, output, cache-read, and cache-write token counts;
+the runtime aggregates those values and audits them without substituting character estimates.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.

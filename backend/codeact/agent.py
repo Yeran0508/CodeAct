@@ -16,13 +16,14 @@ from codeact.models import (
     StopReason,
 )
 from codeact.policy import ActionPolicy
+from codeact.prompting import ModelResponse, UsageTracker
 from codeact.workspace import WorkspaceManager
 
 
 class ModelClient(Protocol):
     def next_action(
         self, task: str, history: tuple[StepRecord, ...], last_observation: Observation | None
-    ) -> Action: ...
+    ) -> Action | ModelResponse: ...
 
 
 class ApprovalGate(Protocol):
@@ -46,6 +47,7 @@ class AgentRuntime:
         max_consecutive_failures: int = 3,
         workspace_manager: WorkspaceManager | None = None,
         audit_logger: AuditLogger | None = None,
+        usage_tracker: UsageTracker | None = None,
     ) -> None:
         if max_steps < 1 or max_consecutive_failures < 1:
             raise ValueError("step and failure limits must be positive")
@@ -57,6 +59,7 @@ class AgentRuntime:
         self.max_consecutive_failures = max_consecutive_failures
         self.workspace_manager = workspace_manager
         self.audit_logger = audit_logger
+        self.usage_tracker = usage_tracker or UsageTracker()
 
     def run(self, task: str, workspace: Path, *, run_id: str = "local-run") -> RunResult:
         history: list[StepRecord] = []
@@ -76,7 +79,24 @@ class AgentRuntime:
             return result
 
         for step in range(1, self.max_steps + 1):
-            action = self.model.next_action(task, tuple(history), last_observation)
+            proposed = self.model.next_action(task, tuple(history), last_observation)
+            if isinstance(proposed, ModelResponse):
+                action = proposed.action
+                self.usage_tracker.record(proposed.usage)
+                if self.audit_logger:
+                    self.audit_logger.record(
+                        "model_usage",
+                        run_id,
+                        {
+                            "cache_read_tokens": proposed.usage.cache_read_tokens,
+                            "cache_write_tokens": proposed.usage.cache_write_tokens,
+                            "input_tokens": proposed.usage.input_tokens,
+                            "output_tokens": proposed.usage.output_tokens,
+                            "step": step,
+                        },
+                    )
+            else:
+                action = proposed
             if self.audit_logger:
                 self.audit_logger.record(
                     "action_proposed",

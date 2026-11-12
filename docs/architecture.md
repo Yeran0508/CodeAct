@@ -111,3 +111,10 @@ HistorySummary keeps first-seen paths, exact stderr strings, per-step risk/appro
 decisions, and both inferred failures and caller-supplied unresolved work. Canonical JSON rendering
 uses sorted keys and compact separators, so identical history produces byte-identical summary text.
 This structure reduces semantic drift but does not infer every possible fact from arbitrary code.
+
+PromptBuilder serializes fixed system instructions, the action schema, and policy version into a
+stable prefix with a SHA-256 identity. Task text, structured older-history summary, recent exact
+steps, and the latest observation live in a separate dynamic suffix. Provider adapters may return a
+ModelResponse containing exact token usage; AgentRuntime accumulates input, output, cache-read, and
+cache-write counts without estimating tokens from characters. Cache semantics remain
+provider-specific and must be normalized by the adapter.
