@@ -58,6 +58,16 @@ execution, process-exhaustion patterns, nested Python process/code execution, de
 modules, remote pushes, permission changes, and Docker daemon operations. These checks reduce
 accidental risk but do not replace container isolation.
 
+## MCP client boundary
+
+McpClientManager is the only component allowed to select a server process. Unknown server IDs are
+rejected before process creation. The stdio transport inherits only PATH plus explicit environment
+entries, applies newline message and timeout limits, and validates JSON-RPC 2.0 responses.
+
+McpClient pins the valid 2025-11-25 handshake lifecycle: initialize, capability validation,
+notifications/initialized, then cursor-aware tools/list. Supporting the newer stateless lifecycle
+will require explicit server/discover negotiation rather than silently changing this contract.
+
 ## Stop conditions
 
 The loop ends on finish, exhausted steps, too many consecutive failures, or denied approval.
