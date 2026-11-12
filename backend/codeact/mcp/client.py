@@ -6,8 +6,15 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
 
-from codeact.approval import ApprovalGrant, BoundApprovalGate
-from codeact.mcp.models import McpServerConfig, McpTool, tool_call_digest
+from codeact.approval import BoundApprovalGate
+from codeact.audit import AuditLogger
+from codeact.mcp.models import (
+    McpCallOutcome,
+    McpServerConfig,
+    McpTool,
+    McpToolResult,
+    tool_call_digest,
+)
 from codeact.mcp.policy import McpToolPolicy
 from codeact.mcp.transport import (
     JsonRpcTransport,
@@ -30,11 +37,15 @@ class McpClient:
         client_name: str = "codeact-runtime",
         client_version: str = "0.2.0",
         server_id: str = "unknown",
+        audit_logger: AuditLogger | None = None,
+        run_id: str = "local-run",
     ) -> None:
         self.transport = transport
         self.client_name = client_name
         self.client_version = client_version
         self.server_id = server_id
+        self.audit_logger = audit_logger
+        self.run_id = run_id
         self.server_info: dict[str, Any] | None = None
         self.tools: dict[str, McpTool] = {}
 
@@ -95,7 +106,7 @@ class McpClient:
         *,
         policy: McpToolPolicy,
         approval_gate: BoundApprovalGate | None = None,
-    ) -> tuple[dict[str, Any], ApprovalGrant | None]:
+    ) -> McpCallOutcome:
         tool = self.tools.get(name)
         if tool is None:
             raise KeyError(f"MCP tool was not discovered: {name}")
@@ -111,17 +122,66 @@ class McpClient:
 
         decision = policy.evaluate(self.server_id, tool)
         approval = None
+        digest = tool_call_digest(self.server_id, name, arguments)
+        if self.audit_logger:
+            self.audit_logger.record(
+                "mcp_tool_call_requested",
+                self.run_id,
+                {
+                    "arguments": arguments,
+                    "call_digest": digest,
+                    "reasons": decision.reasons,
+                    "risk": decision.risk.value,
+                    "server_id": self.server_id,
+                    "tool_name": name,
+                },
+            )
         if decision.requires_approval:
-            digest = tool_call_digest(self.server_id, name, arguments)
             approval = (
                 approval_gate.authorize_digest(digest, decision.reasons)
                 if approval_gate is not None
                 else None
             )
             if approval is None:
+                if self.audit_logger:
+                    self.audit_logger.record(
+                        "mcp_tool_call_denied",
+                        self.run_id,
+                        {
+                            "call_digest": digest,
+                            "reasons": decision.reasons,
+                            "server_id": self.server_id,
+                            "tool_name": name,
+                        },
+                    )
                 raise PermissionError(f"MCP tool approval required: {decision.reasons}")
-        result = self.transport.request("tools/call", {"name": name, "arguments": arguments})
-        return result, approval
+        wire_result = self.transport.request(
+            "tools/call", {"name": name, "arguments": arguments}
+        )
+        try:
+            result = McpToolResult.from_wire(wire_result)
+        except ValueError as error:
+            raise McpProtocolError(str(error)) from error
+        if self.audit_logger:
+            self.audit_logger.record(
+                "mcp_tool_call_finished",
+                self.run_id,
+                {
+                    "approval_id": approval.grant_id if approval else None,
+                    "call_digest": digest,
+                    "content": result.content,
+                    "is_error": result.is_error,
+                    "server_id": self.server_id,
+                    "structured_content": result.structured_content,
+                    "tool_name": name,
+                },
+            )
+        return McpCallOutcome(
+            result=result,
+            approval_id=approval.grant_id if approval else None,
+            call_digest=digest,
+            risk_reasons=decision.reasons,
+        )
 
 
 class McpClientManager:
@@ -130,11 +190,15 @@ class McpClientManager:
         configs: list[McpServerConfig],
         *,
         transport_factory: Callable[[McpServerConfig], JsonRpcTransport] = StdioJsonRpcTransport,
+        audit_logger: AuditLogger | None = None,
+        run_id: str = "local-run",
     ) -> None:
         self._configs = {config.server_id: config for config in configs}
         if len(self._configs) != len(configs):
             raise ValueError("duplicate MCP server_id")
         self._transport_factory = transport_factory
+        self._audit_logger = audit_logger
+        self._run_id = run_id
 
     @property
     def allowed_server_ids(self) -> tuple[str, ...]:
@@ -144,6 +208,11 @@ class McpClientManager:
         config = self._configs.get(server_id)
         if config is None:
             raise PermissionError(f"MCP server is not allowlisted: {server_id}")
-        client = McpClient(self._transport_factory(config), server_id=server_id)
+        client = McpClient(
+            self._transport_factory(config),
+            server_id=server_id,
+            audit_logger=self._audit_logger,
+            run_id=self._run_id,
+        )
         client.connect()
         return client

@@ -49,9 +49,9 @@ def test_read_only_tool_validates_and_calls_without_approval() -> None:
     policy = McpToolPolicy(
         {"fixture:read_note": McpToolRule(RiskLevel.READ_ONLY)}
     )
-    result, approval = client.call_tool("read_note", {"name": "intro"}, policy=policy)
-    assert result["content"][0]["text"] == "ok"
-    assert approval is None
+    outcome = client.call_tool("read_note", {"name": "intro"}, policy=policy)
+    assert outcome.result.content[0]["text"] == "ok"
+    assert outcome.approval_id is None
     assert transport.calls == [
         ("tools/call", {"name": "read_note", "arguments": {"name": "intro"}})
     ]
@@ -89,14 +89,14 @@ def test_unclassified_tool_requires_exact_single_use_approval() -> None:
         now=NOW,
     )
     gate = BoundApprovalGate([grant], clock=lambda: NOW)
-    result, used = client.call_tool(
+    outcome = client.call_tool(
         "write_note",
         arguments,
         policy=McpToolPolicy(),
         approval_gate=gate,
     )
-    assert result["content"][0]["text"] == "ok"
-    assert used == grant
+    assert outcome.result.content[0]["text"] == "ok"
+    assert outcome.approval_id == grant.grant_id
     with pytest.raises(PermissionError, match="approval required"):
         client.call_tool(
             "write_note",

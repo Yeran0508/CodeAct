@@ -34,6 +34,21 @@ destructiveHint or openWorldHint is true, but readOnlyHint cannot lower host pol
 Write and high-risk calls require a one-time ApprovalGrant. Its SHA-256 covers the exact server
 ID, tool name, and canonical arguments. Changed arguments cannot reuse an earlier grant.
 
+## Untrusted results and audit
+
+tools/call responses must contain an array of content objects. isError must be boolean and optional
+structuredContent must be an object. Tool-level errors remain data rather than becoming protocol
+exceptions; malformed response shapes are protocol errors.
+
+McpToolResult.to_model_text places serialized content inside an explicit untrusted-data boundary
+and applies the same observable head/tail truncation used for command output. This marker is a
+model instruction aid, not a security boundary: every later proposed action still passes runtime
+policy and approval.
+
+When AuditLogger is configured, the client records requested, denied, and finished calls. Events
+include call digest, risk reasons, approval ID, arguments, and result metadata. SecretRedactor
+sanitizes arguments and content before the hash-chained event reaches disk.
+
 ## References
 
 - [MCP lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)
