@@ -17,6 +17,7 @@ def test_docker_executor_enforces_isolation_flags(tmp_path: Path) -> None:
     assert command[command.index("--network") + 1] == "none"
     assert "ALL" in command
     assert "no-new-privileges" in command
+    assert command[command.index("--user") + 1] != "0:0"
     assert result.succeeded
 
 

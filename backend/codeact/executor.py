@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from dataclasses import dataclass
@@ -8,6 +9,7 @@ from typing import Protocol
 
 from codeact.context import truncate_output
 from codeact.models import Action, CodeLanguage, Observation
+from codeact.workspace import validate_workspace
 
 
 class Executor(Protocol):
@@ -23,10 +25,14 @@ class DockerExecutor:
     max_output_chars: int = 12_000
     cpu_limit: str = "1.0"
     memory_limit: str = "512m"
+    container_user: str | None = None
 
     def execute(self, action: Action, workspace: Path) -> Observation:
-        workspace = workspace.resolve()
         workspace.mkdir(parents=True, exist_ok=True)
+        workspace = validate_workspace(workspace)
+        uid = os.getuid() if hasattr(os, "getuid") else 65534
+        gid = os.getgid() if hasattr(os, "getgid") else 65534
+        user = self.container_user or (f"{uid}:{gid}" if uid != 0 else "65534:65534")
         interpreter = "python" if action.language is CodeLanguage.PYTHON else "bash"
         flag = "-c"
         command = [
@@ -46,7 +52,7 @@ class DockerExecutor:
             "--security-opt",
             "no-new-privileges",
             "--user",
-            "65534:65534",
+            user,
             "--workdir",
             "/workspace",
             "--mount",

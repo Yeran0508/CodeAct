@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from codeact.workspace import WorkspaceManager
+from codeact.workspace import WorkspaceManager, validate_workspace
 
 
 def test_manager_creates_private_unique_workspace(tmp_path: Path) -> None:
@@ -44,3 +44,12 @@ def test_closed_snapshot_cannot_restore(tmp_path: Path) -> None:
     snapshot.close()
     with pytest.raises(RuntimeError, match="closed"):
         snapshot.restore()
+
+
+def test_workspace_rejects_symlink_that_escapes_boundary(tmp_path: Path) -> None:
+    workspace = WorkspaceManager(tmp_path).create("run")
+    outside = tmp_path / "outside.txt"
+    outside.write_text("secret")
+    (workspace / "escape").symlink_to(outside)
+    with pytest.raises(ValueError, match="escapes"):
+        validate_workspace(workspace)

@@ -52,6 +52,12 @@ approval integrity, audit logs, and adversarial tests before untrusted use.
 - Approval defaults to deny; exact action-bound grants are checked before the executor.
 - Audit files belong outside model-visible workspaces and must be protected by host permissions.
 
+Before execution and snapshotting, the runtime rejects workspace symlinks that resolve outside the
+workspace root. Static policy conservatively requires approval for dynamic or encoded shell
+execution, process-exhaustion patterns, nested Python process/code execution, deletion, network
+modules, remote pushes, permission changes, and Docker daemon operations. These checks reduce
+accidental risk but do not replace container isolation.
+
 ## Stop conditions
 
 The loop ends on finish, exhausted steps, too many consecutive failures, or denied approval.

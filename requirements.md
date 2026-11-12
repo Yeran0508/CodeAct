@@ -31,6 +31,8 @@ implementation for learning and measuring the engineering ideas in the CodeAct p
 
 ### M1: Workspace recovery and auditable approvals
 
+Status: completed and locally verified on 2026-11-12. See the M1 sandbox acceptance report.
+
 - Per-run workspace and immutable event log with secret redaction.
 - Snapshot before mutation and rollback on failure.
 - Approval binds the action digest, reason, approver, and expiration.

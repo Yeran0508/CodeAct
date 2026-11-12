@@ -6,11 +6,14 @@ import re
 from codeact.models import Action, CodeLanguage, PolicyDecision, RiskLevel
 
 _BASH_HIGH_RISK = (
-    (re.compile(r"(^|[;&|]\s*)rm\s+(-[^\n;]*\s+)*[^\n;]+"), "file deletion"),
+    (re.compile(r"(^|[;&|]\s*)rm\s+"), "file deletion"),
     (re.compile(r"\bgit\s+push\b"), "remote repository mutation"),
     (re.compile(r"\b(curl|wget)\b"), "network access"),
     (re.compile(r"\b(sudo|chmod|chown)\b"), "privilege or permission change"),
     (re.compile(r"\bdocker\s+(run|exec|build|push|rm)\b"), "Docker daemon access"),
+    (re.compile(r"\b(bash|sh)\s+-c\b|\beval\b|\$\(|\x60"), "dynamic shell execution"),
+    (re.compile(r"\b(base64|xxd)\s+(-d|--decode|-r)\b"), "encoded command execution"),
+    (re.compile(r":\s*\(\s*\)\s*\{.*:\s*\|\s*:\s*&"), "process exhaustion"),
 )
 _BASH_WRITE = re.compile(r"(^|\s)(touch|mkdir|mv|cp|sed\s+-i)\b|>{1,2}")
 _PYTHON_HIGH_RISK_CALLS = {
@@ -24,8 +27,27 @@ _PYTHON_HIGH_RISK_CALLS = {
     "socket.socket": "network access",
     "subprocess.run": "nested process execution",
     "subprocess.Popen": "nested process execution",
+    "os.system": "nested process execution",
+    "os.popen": "nested process execution",
+    "eval": "dynamic code execution",
+    "exec": "dynamic code execution",
+    "compile": "dynamic code execution",
+    "__import__": "dynamic import",
+    "Path.unlink": "file deletion",
+    "Path.rmdir": "directory deletion",
+    "unlink": "file deletion",
+    "rmdir": "directory deletion",
 }
-_PYTHON_WRITE_CALLS = {"open", "Path.write_text", "Path.write_bytes", "os.mkdir", "os.makedirs"}
+_PYTHON_WRITE_CALLS = {
+    "open",
+    "Path.write_text",
+    "Path.write_bytes",
+    "write_text",
+    "write_bytes",
+    "os.mkdir",
+    "os.makedirs",
+}
+_NETWORK_MODULES = {"http.client", "requests", "socket", "urllib", "urllib.request"}
 
 
 def _call_name(node: ast.Call) -> str:
@@ -64,17 +86,44 @@ class ActionPolicy:
         high_risk: set[str] = set()
         writes = False
         for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                if any(alias.name in _NETWORK_MODULES for alias in node.names):
+                    high_risk.add("network access")
+            if isinstance(node, ast.ImportFrom) and node.module in _NETWORK_MODULES:
+                high_risk.add("network access")
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)
-            if name in _PYTHON_HIGH_RISK_CALLS:
-                high_risk.add(_PYTHON_HIGH_RISK_CALLS[name])
-            if name in _PYTHON_WRITE_CALLS:
+            matched_high_risk = next(
+                (
+                    reason
+                    for call, reason in _PYTHON_HIGH_RISK_CALLS.items()
+                    if name == call or name.endswith(f".{call}")
+                ),
+                None,
+            )
+            if matched_high_risk:
+                high_risk.add(matched_high_risk)
+            matched_write = next(
+                (
+                    call
+                    for call in _PYTHON_WRITE_CALLS
+                    if name == call or name.endswith(f".{call}")
+                ),
+                None,
+            )
+            if matched_write:
                 if name == "open" and len(node.args) > 1:
                     mode = node.args[1]
                     if isinstance(mode, ast.Constant) and isinstance(mode.value, str):
                         writes = writes or any(flag in mode.value for flag in "wax+")
-                elif name != "open":
+                elif name == "open":
+                    for keyword in node.keywords:
+                        if keyword.arg == "mode" and isinstance(keyword.value, ast.Constant):
+                            mode_value = keyword.value.value
+                            if isinstance(mode_value, str):
+                                writes = writes or any(flag in mode_value for flag in "wax+")
+                else:
                     writes = True
         if high_risk:
             return PolicyDecision(RiskLevel.HIGH_RISK, True, tuple(sorted(high_risk)))

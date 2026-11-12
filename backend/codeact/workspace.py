@@ -9,6 +9,22 @@ from pathlib import Path
 _RUN_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$")
 
 
+def validate_workspace(workspace: Path) -> Path:
+    workspace = workspace.resolve()
+    if not workspace.is_dir():
+        raise ValueError("workspace must be an existing directory")
+    for path in workspace.rglob("*"):
+        if not path.is_symlink():
+            continue
+        try:
+            target = path.resolve(strict=False)
+        except RuntimeError as error:
+            raise ValueError(f"workspace contains an invalid symlink: {path.name}") from error
+        if not target.is_relative_to(workspace):
+            raise ValueError(f"workspace symlink escapes its boundary: {path.name}")
+    return workspace
+
+
 @dataclass
 class WorkspaceSnapshot:
     workspace: Path
@@ -51,9 +67,7 @@ class WorkspaceManager:
         return workspace
 
     def snapshot(self, workspace: Path) -> WorkspaceSnapshot:
-        workspace = workspace.resolve()
-        if not workspace.is_dir():
-            raise ValueError("workspace must be an existing directory")
+        workspace = validate_workspace(workspace)
         temporary_directory = tempfile.TemporaryDirectory(
             prefix=f".{workspace.name}-snapshot-",
             dir=workspace.parent,
