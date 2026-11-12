@@ -32,6 +32,11 @@ Results are shape-validated, explicitly wrapped as untrusted model data, bounded
 recorded through the secret-redacted hash-chain audit. A real fixture server verifies discovery,
 denial before approval, exact approved mutation, injected result handling, and audit redaction.
 
+M3-A is implemented: a bounded generic warm-sandbox pool provides explicit startup, acquisition
+timeouts, health checks, idempotent leases, dirty-instance destruction, asynchronous clean
+replacement, statistics, and deterministic shutdown. The real Docker warm backend is the next
+M3 module.
+
 This checkpoint does not claim an MCP connection, warm container pool,
 SWE-bench result, model-quality improvement, or OpenHands contribution. Those are evidence-gated
 milestones in requirements.md.

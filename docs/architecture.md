@@ -68,6 +68,18 @@ McpClient pins the valid 2025-11-25 handshake lifecycle: initialize, capability 
 notifications/initialized, then cursor-aware tools/list. Supporting the newer stateless lifecycle
 will require explicit server/discover negotiation rather than silently changing this contract.
 
+## Warm sandbox pool
+
+WarmSandboxPool owns a fixed target number of clean backend handles. A lease removes one handle
+from the available queue. Release never returns that handle to the queue: the backend destroys it
+and asynchronously creates a clean replacement. This preserves session isolation while allowing
+another already-warm handle to serve the next acquisition.
+
+Acquisition has a bounded deadline and discards unhealthy available handles. Pool close is
+idempotent, rejects new work, waits briefly for replacement workers, and destroys both available
+and leased live handles. PoolStats reports target, live, available, leased, and replacements in
+flight without exposing backend-specific state.
+
 ## Stop conditions
 
 The loop ends on finish, exhausted steps, too many consecutive failures, or denied approval.
