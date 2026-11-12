@@ -80,6 +80,17 @@ idempotent, rejects new work, waits briefly for replacement workers, and destroy
 and leased live handles. PoolStats reports target, live, available, leased, and replacements in
 flight without exposing backend-specific state.
 
+DockerWarmBackend implements that lifecycle using prestarted, sleeping containers. Each container
+has a tmpfs `/workspace`, so multiple actions in one DockerSandboxSession see the same files while
+no host directory is exposed. Closing the session destroys the entire container and the pool
+creates a fresh replacement; a dirty filesystem is never placed back into the queue.
+
+The backend disables networking, makes the image filesystem read-only, drops all capabilities,
+sets no-new-privileges, and applies CPU, memory, PID, tmpfs-size, execution-time, and output bounds.
+It runs as the configured UID/GID (the host user by default, or 65534 when the host is root).
+These controls reduce blast radius but do not make Docker Desktop or a shared daemon a hardened
+multi-tenant security boundary.
+
 ## Stop conditions
 
 The loop ends on finish, exhausted steps, too many consecutive failures, or denied approval.

@@ -34,12 +34,15 @@ denial before approval, exact approved mutation, injected result handling, and a
 
 M3-A is implemented: a bounded generic warm-sandbox pool provides explicit startup, acquisition
 timeouts, health checks, idempotent leases, dirty-instance destruction, asynchronous clean
-replacement, statistics, and deterministic shutdown. The real Docker warm backend is the next
-M3 module.
+replacement, statistics, and deterministic shutdown. M3-B adds a real Docker backend whose
+prestarted containers use an in-memory `/workspace`, retain state across actions in one lease,
+and are destroyed instead of reused when the lease ends. The containers run non-root with no
+network, a read-only root filesystem, dropped capabilities, no-new-privileges, and CPU, memory,
+PID, workspace, execution-time, and output limits.
 
-This checkpoint does not claim an MCP connection, warm container pool,
-SWE-bench result, model-quality improvement, or OpenHands contribution. Those are evidence-gated
-milestones in requirements.md.
+This checkpoint does not yet claim measured warm-start latency, concurrent isolation acceptance,
+a SWE-bench result, model-quality improvement, or an OpenHands contribution. Those are
+evidence-gated milestones in requirements.md.
 
 ## Local quality gates
 
