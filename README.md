@@ -55,6 +55,10 @@ M4-A begins context management with one deterministic truncation primitive that 
 and removed character metadata, preserves useful head/tail evidence, handles Unicode, and strictly
 honors zero or marker-only budgets.
 
+M4-B adds deterministic structured history summaries. They preserve first-seen paths, exact stderr,
+policy/approval/rollback/exit decisions, and unresolved failures without asking a model to
+paraphrase evidence; canonical JSON makes identical inputs byte-stable.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.

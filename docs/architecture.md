@@ -105,3 +105,9 @@ and removed character counts, preserves the beginning and end when the budget ca
 and never exceeds the requested budget, including zero and marker-only budgets. Character counts
 refer to Python Unicode code points rather than provider tokens; token accounting is a separate
 provider-reported concern.
+
+Older step history is summarized by deterministic extraction rather than model-authored prose.
+HistorySummary keeps first-seen paths, exact stderr strings, per-step risk/approval/rollback/exit
+decisions, and both inferred failures and caller-supplied unresolved work. Canonical JSON rendering
+uses sorted keys and compact separators, so identical history produces byte-identical summary text.
+This structure reduces semantic drift but does not infer every possible fact from arbitrary code.
