@@ -46,9 +46,14 @@ discarded. `scripts/verify_m3.py` performs a real-Docker check for same-session 
 container IDs, zero workspace leakage across sessions, and active network, root-filesystem,
 capability, PID, and memory controls.
 
-This checkpoint does not yet claim measured warm-start latency, concurrent isolation acceptance,
-a SWE-bench result, model-quality improvement, or an OpenHands contribution. Those are
-evidence-gated milestones in requirements.md.
+M3-D completes the milestone with a reproducible 12-sample Docker benchmark. On the recorded
+macOS/Docker Desktop environment, cold create-plus-execute measured 701.654 ms P50 and 935.908 ms
+P95; warm health-check-plus-execute measured 241.200 ms P50 and 297.220 ms P95, a 65.62% P50
+reduction. Prewarming and asynchronous replacement are intentionally outside the warm timed region.
+
+This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
+certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
+claims in requirements.md.
 
 ## Local quality gates
 
@@ -66,7 +71,9 @@ docker compose config --quiet
 The default tests mock the process boundary while checking isolation flags. M1 also provides
 opt-in real-Docker tests and scripts/verify_m1.py, which verifies non-root writes, network denial,
 and failed-action rollback. `PYTHONPATH=backend python3 scripts/verify_m3.py` runs the M3 isolation
-acceptance. This remains a development sandbox, not a production security claim.
+acceptance. `PYTHONPATH=backend:. python3 scripts/benchmark_m3.py --iterations 12 --pool-size 2`
+reproduces the latency protocol. This remains a development sandbox, not a production security
+claim.
 
 ## Documents
 
@@ -74,5 +81,7 @@ acceptance. This remains a development sandbox, not a production security claim.
 - [Architecture and trust boundaries](docs/architecture.md)
 - [Runtime contract](docs/api-contract.md)
 - [Experiment protocol](docs/experiments/README.md)
+- [M3 isolation acceptance](docs/experiments/2026-11-12-m3-isolation-acceptance.md)
+- [M3 cold-versus-warm benchmark](docs/experiments/2026-11-12-m3-warm-pool-benchmark.md)
 - [MCP integration](docs/mcp.md)
 - [Chinese learning notes](CodeAct学习笔记.txt)

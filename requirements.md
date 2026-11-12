@@ -50,6 +50,9 @@ See the M2 MCP acceptance report. Streamable HTTP and the 2026-07-28 lifecycle r
 
 ### M3: Warm sandbox pool
 
+Status: completed and locally verified on 2026-11-12. See the M3 isolation acceptance and
+cold-versus-warm benchmark reports.
+
 - Pre-created clean containers with bounded pool size and acquisition timeout.
 - Dirty containers are destroyed; no cross-session leakage.
 - Measured cold-start versus warm-acquire latency.

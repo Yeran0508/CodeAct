@@ -1,0 +1,54 @@
+{
+  "action": "python -c print('ready')",
+  "cold": {
+    "max_ms": 988.875,
+    "min_ms": 498.207,
+    "p50_ms": 701.654,
+    "p95_ms": 935.908,
+    "samples_ms": [
+      498.207,
+      736.26,
+      682.226,
+      988.875,
+      690.363,
+      719.044,
+      672.675,
+      659.868,
+      892.571,
+      712.945,
+      768.077,
+      675.398
+    ]
+  },
+  "cold_definition": "create container + exec action",
+  "docker_client_server": "27.4.0/27.4.0",
+  "host": "macOS-15.3.1-x86_64-i386-64bit",
+  "image": "python:3.12.10-slim",
+  "image_id": "sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db",
+  "iterations": 12,
+  "p50_reduction_percent": 65.62,
+  "pool_size": 2,
+  "recorded_at": "2026-11-12T22:22:16.610663+00:00",
+  "schema_version": 1,
+  "warm": {
+    "max_ms": 302.901,
+    "min_ms": 198.779,
+    "p50_ms": 241.2,
+    "p95_ms": 297.22,
+    "samples_ms": [
+      259.093,
+      302.901,
+      224.185,
+      240.8,
+      241.599,
+      258.82,
+      216.988,
+      198.779,
+      292.573,
+      226.217,
+      274.766,
+      211.017
+    ]
+  },
+  "warm_definition": "health-checked pool acquire + exec action; replacement excluded"
+}
