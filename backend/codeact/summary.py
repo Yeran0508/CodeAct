@@ -78,17 +78,24 @@ def summarize_history(
             paths.extend(match.group(0) for match in PATH_PATTERN.finditer(text))
 
         policy = record.policy
-        decisions.append(
-            DecisionRecord(
-                step=record.step,
-                risk=policy.risk.value if policy else None,
-                reasons=policy.reasons if policy else (),
-                approval_id=record.approval_id,
-                rolled_back=record.rolled_back,
-                exit_code=record.observation.exit_code if record.observation else None,
-                timed_out=record.observation.timed_out if record.observation else False,
-            )
+        material_decision = (
+            policy is not None
+            or record.approval_id is not None
+            or record.rolled_back
+            or (record.observation is not None and not record.observation.succeeded)
         )
+        if material_decision:
+            decisions.append(
+                DecisionRecord(
+                    step=record.step,
+                    risk=policy.risk.value if policy else None,
+                    reasons=policy.reasons if policy else (),
+                    approval_id=record.approval_id,
+                    rolled_back=record.rolled_back,
+                    exit_code=record.observation.exit_code if record.observation else None,
+                    timed_out=record.observation.timed_out if record.observation else False,
+                )
+            )
 
     return HistorySummary(
         paths=_unique_in_order(paths),

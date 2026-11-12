@@ -107,7 +107,7 @@ refer to Python Unicode code points rather than provider tokens; token accountin
 provider-reported concern.
 
 Older step history is summarized by deterministic extraction rather than model-authored prose.
-HistorySummary keeps first-seen paths, exact stderr strings, per-step risk/approval/rollback/exit
+HistorySummary keeps first-seen paths, exact stderr strings, material risk/approval/rollback/failure
 decisions, and both inferred failures and caller-supplied unresolved work. Canonical JSON rendering
 uses sorted keys and compact separators, so identical history produces byte-identical summary text.
 This structure reduces semantic drift but does not infer every possible fact from arbitrary code.

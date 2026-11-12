@@ -1,0 +1,383 @@
+{
+  "dynamic_character_budget": 2400,
+  "fixture_provider": "regex-token-provider-v1",
+  "host": "macOS-15.3.1-x86_64-i386-64bit",
+  "quality_definition": "all required path/error/decision/unresolved facts retained",
+  "recorded_at": "2026-11-12T23:21:04.047454+00:00",
+  "schema_version": 1,
+  "token_pattern": "\\w+|[^\\w\\s]",
+  "with_summary": {
+    "cases": 10,
+    "dynamic_chars": 24000,
+    "prefix_sha256": "1dc10d6f446425d7914127b8f0dd6cedd31297d31ce7609f781fd7b133891a47",
+    "quality_rate": 1.0,
+    "results": [
+      {
+        "case_id": 1,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-1: dependency mismatch": true,
+          "decision-1-requires-review": true,
+          "src/module_1.py": true,
+          "unresolved-1-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 107,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 2,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-2: dependency mismatch": true,
+          "decision-2-requires-review": true,
+          "src/module_2.py": true,
+          "unresolved-2-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 3,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-3: dependency mismatch": true,
+          "decision-3-requires-review": true,
+          "src/module_3.py": true,
+          "unresolved-3-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 4,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-4: dependency mismatch": true,
+          "decision-4-requires-review": true,
+          "src/module_4.py": true,
+          "unresolved-4-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 5,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-5: dependency mismatch": true,
+          "decision-5-requires-review": true,
+          "src/module_5.py": true,
+          "unresolved-5-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 6,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-6: dependency mismatch": true,
+          "decision-6-requires-review": true,
+          "src/module_6.py": true,
+          "unresolved-6-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 7,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-7: dependency mismatch": true,
+          "decision-7-requires-review": true,
+          "src/module_7.py": true,
+          "unresolved-7-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 8,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-8: dependency mismatch": true,
+          "decision-8-requires-review": true,
+          "src/module_8.py": true,
+          "unresolved-8-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 9,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-9: dependency mismatch": true,
+          "decision-9-requires-review": true,
+          "src/module_9.py": true,
+          "unresolved-9-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1346,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 10,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-10: dependency mismatch": true,
+          "decision-10-requires-review": true,
+          "src/module_10.py": true,
+          "unresolved-10-rerun-tests": true
+        },
+        "success": true,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1275,
+          "output_tokens": 1
+        }
+      }
+    ],
+    "successes": 10,
+    "summary_enabled": true,
+    "usage": {
+      "cache_read_tokens": 963,
+      "cache_write_tokens": 107,
+      "calls": 10,
+      "input_tokens": 13389,
+      "output_tokens": 10
+    }
+  },
+  "without_summary": {
+    "cases": 10,
+    "dynamic_chars": 24000,
+    "prefix_sha256": "1dc10d6f446425d7914127b8f0dd6cedd31297d31ce7609f781fd7b133891a47",
+    "quality_rate": 0.0,
+    "results": [
+      {
+        "case_id": 1,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-1: dependency mismatch": false,
+          "decision-1-requires-review": false,
+          "src/module_1.py": false,
+          "unresolved-1-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 107,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 2,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-2: dependency mismatch": false,
+          "decision-2-requires-review": false,
+          "src/module_2.py": false,
+          "unresolved-2-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 3,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-3: dependency mismatch": false,
+          "decision-3-requires-review": false,
+          "src/module_3.py": false,
+          "unresolved-3-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 4,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-4: dependency mismatch": false,
+          "decision-4-requires-review": false,
+          "src/module_4.py": false,
+          "unresolved-4-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 5,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-5: dependency mismatch": false,
+          "decision-5-requires-review": false,
+          "src/module_5.py": false,
+          "unresolved-5-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 6,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-6: dependency mismatch": false,
+          "decision-6-requires-review": false,
+          "src/module_6.py": false,
+          "unresolved-6-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 7,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-7: dependency mismatch": false,
+          "decision-7-requires-review": false,
+          "src/module_7.py": false,
+          "unresolved-7-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 8,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-8: dependency mismatch": false,
+          "decision-8-requires-review": false,
+          "src/module_8.py": false,
+          "unresolved-8-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 9,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-9: dependency mismatch": false,
+          "decision-9-requires-review": false,
+          "src/module_9.py": false,
+          "unresolved-9-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1380,
+          "output_tokens": 1
+        }
+      },
+      {
+        "case_id": 10,
+        "dynamic_chars": 2400,
+        "facts_retained": {
+          "ExactError-10: dependency mismatch": false,
+          "decision-10-requires-review": false,
+          "src/module_10.py": false,
+          "unresolved-10-rerun-tests": true
+        },
+        "success": false,
+        "usage": {
+          "cache_read_tokens": 107,
+          "cache_write_tokens": 0,
+          "input_tokens": 1295,
+          "output_tokens": 1
+        }
+      }
+    ],
+    "successes": 0,
+    "summary_enabled": false,
+    "usage": {
+      "cache_read_tokens": 963,
+      "cache_write_tokens": 107,
+      "calls": 10,
+      "input_tokens": 13715,
+      "output_tokens": 10
+    }
+  }
+}

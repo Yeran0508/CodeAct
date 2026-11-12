@@ -59,6 +59,10 @@ cold-versus-warm benchmark reports.
 
 ### M4: Context management
 
+Status: completed and locally verified on 2026-11-12. See the M4 long-context summary comparison
+report. The reported quality is deterministic fact retention with a local fixture provider, not
+language-model task accuracy.
+
 - Deterministic truncation with removed-character metadata.
 - Summaries preserve paths, exact errors, decisions, and unresolved work.
 - Stable prompt prefix and provider-reported cache accounting.

@@ -63,6 +63,12 @@ M4-C separates a SHA-256-identified stable prompt prefix from dynamic task/histo
 model responses carry provider-reported input, output, cache-read, and cache-write token counts;
 the runtime aggregates those values and audits them without substituting character estimates.
 
+M4-D completes the milestone with a deterministic 10-case long-history comparison under the same
+2,400-character dynamic budget and stable prefix. Direct history truncation retained all required
+path/error/decision/unresolved facts in 0/10 cases; structured summaries retained them in 10/10 and
+used 13,389 versus 13,715 fixture-provider input tokens (2.38% fewer). Both modes reported 963
+cache-read tokens. This measures synthetic fact retention and fixture accounting, not LLM accuracy.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.
@@ -95,5 +101,6 @@ claim.
 - [Experiment protocol](docs/experiments/README.md)
 - [M3 isolation acceptance](docs/experiments/2026-11-12-m3-isolation-acceptance.md)
 - [M3 cold-versus-warm benchmark](docs/experiments/2026-11-12-m3-warm-pool-benchmark.md)
+- [M4 long-context summary comparison](docs/experiments/2026-11-12-m4-summary-comparison.md)
 - [MCP integration](docs/mcp.md)
 - [Chinese learning notes](CodeAct学习笔记.txt)
