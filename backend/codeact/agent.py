@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Protocol
 
+from codeact.approval import ApprovalGrant
 from codeact.executor import Executor
 from codeact.models import (
     Action,
@@ -24,12 +25,12 @@ class ModelClient(Protocol):
 
 
 class ApprovalGate(Protocol):
-    def approve(self, action: Action, reasons: tuple[str, ...]) -> bool: ...
+    def authorize(self, action: Action, reasons: tuple[str, ...]) -> ApprovalGrant | None: ...
 
 
 class DenyByDefault:
-    def approve(self, action: Action, reasons: tuple[str, ...]) -> bool:
-        return False
+    def authorize(self, action: Action, reasons: tuple[str, ...]) -> ApprovalGrant | None:
+        return None
 
 
 class AgentRuntime:
@@ -65,9 +66,10 @@ class AgentRuntime:
                 return RunResult(action.answer, StopReason.COMPLETED, tuple(history))
 
             decision = self.policy.evaluate(action)
-            if decision.requires_approval and not self.approval_gate.approve(
-                action, decision.reasons
-            ):
+            approval = None
+            if decision.requires_approval:
+                approval = self.approval_gate.authorize(action, decision.reasons)
+            if decision.requires_approval and approval is None:
                 history.append(StepRecord(step=step, action=action, policy=decision))
                 return RunResult("", StopReason.APPROVAL_DENIED, tuple(history))
 
@@ -89,6 +91,7 @@ class AgentRuntime:
                     policy=decision,
                     observation=observation,
                     rolled_back=rolled_back,
+                    approval_id=approval.grant_id if approval else None,
                 )
             )
             last_observation = observation

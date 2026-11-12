@@ -71,6 +71,7 @@ class StepRecord:
     policy: PolicyDecision | None = None
     observation: Observation | None = None
     rolled_back: bool = False
+    approval_id: str | None = None
 
 
 @dataclass(frozen=True)

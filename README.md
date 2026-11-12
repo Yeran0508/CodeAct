@@ -17,6 +17,7 @@ M0 is implemented as a testable library baseline:
   capabilities, no-new-privileges, timeouts, and output truncation;
 - isolated run workspaces plus pre-mutation snapshots and automatic rollback after failed or
   timed-out write actions;
+- one-time approvals bound to the exact action SHA-256, risk reasons, approver, and expiration;
 - Python 3.12 packaging, Docker test image, Ruff/pytest/coverage gates, and CI.
 
 This checkpoint does not claim an MCP connection, warm container pool,

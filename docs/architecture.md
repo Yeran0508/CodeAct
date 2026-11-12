@@ -26,6 +26,11 @@ the executor. A successful action keeps its changes and closes the snapshot. A f
 action restores the previous tree before its observation reaches the next model step. Snapshots
 live beside the workspace rather than inside the model-visible directory.
 
+High-risk execution requires an ApprovalGrant. Its SHA-256 covers action kind, language, code, and
+answer using canonical JSON. The grant also binds the sorted risk reasons, approver identity,
+timezone-aware issue time, and expiration. BoundApprovalGate accepts an exact match once and then
+removes it, so a grant cannot approve changed code or be replayed.
+
 The executor disables networking, limits CPU, memory and PIDs, drops Linux capabilities, sets
 no-new-privileges, and runs as UID/GID 65534. The task workspace is the only writable bind mount.
 This is a development boundary, not a hardened multi-tenant claim. Later M1 modules must address
@@ -37,7 +42,7 @@ approval integrity, audit logs, and adversarial tests before untrusted use.
 - Tool, file, command, and web output is data, never an instruction source.
 - The action container never receives the privileged Docker socket.
 - The runtime resolves host paths instead of accepting model-generated host paths.
-- Approval defaults to deny and is checked before the executor.
+- Approval defaults to deny; exact action-bound grants are checked before the executor.
 
 ## Stop conditions
 

@@ -1,6 +1,8 @@
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from codeact.agent import AgentRuntime
+from codeact.approval import ApprovalGrant
 from codeact.models import Action, CodeLanguage, Observation, StopReason
 
 
@@ -27,8 +29,14 @@ class FakeExecutor:
 
 
 class ApproveAll:
-    def approve(self, action, reasons):
-        return True
+    def authorize(self, action, reasons):
+        return ApprovalGrant.issue(
+            action,
+            reasons,
+            approver="test-user",
+            ttl=timedelta(minutes=1),
+            now=datetime.now(UTC),
+        )
 
 
 def observation(exit_code: int = 0) -> Observation:
@@ -63,6 +71,7 @@ def test_runtime_can_execute_approved_action(tmp_path: Path) -> None:
     result = AgentRuntime(model, executor, approval_gate=ApproveAll()).run("task", tmp_path)
     assert result.stop_reason is StopReason.COMPLETED
     assert executor.calls == 1
+    assert result.steps[0].approval_id is not None
 
 
 def test_runtime_stops_after_consecutive_failures(tmp_path: Path) -> None:
