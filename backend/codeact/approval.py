@@ -60,6 +60,38 @@ class ApprovalGrant:
             expires_at=issued_at + ttl,
         )
 
+    @classmethod
+    def issue_for_digest(
+        cls,
+        digest: str,
+        reasons: tuple[str, ...],
+        *,
+        approver: str,
+        ttl: timedelta,
+        now: datetime | None = None,
+    ) -> ApprovalGrant:
+        issued_at = now or datetime.now(UTC)
+        if issued_at.tzinfo is None:
+            raise ValueError("approval timestamps must be timezone-aware")
+        if ttl <= timedelta(0):
+            raise ValueError("approval ttl must be positive")
+        if not approver.strip():
+            raise ValueError("approver is required")
+        if len(digest) != 64:
+            raise ValueError("approval digest must be a SHA-256 hex digest")
+        try:
+            int(digest, 16)
+        except ValueError as error:
+            raise ValueError("approval digest must be a SHA-256 hex digest") from error
+        return cls(
+            grant_id=str(uuid.uuid4()),
+            action_digest=digest.lower(),
+            reasons=tuple(sorted(reasons)),
+            approver=approver,
+            issued_at=issued_at,
+            expires_at=issued_at + ttl,
+        )
+
     def is_valid(
         self,
         action: Action,
@@ -72,6 +104,21 @@ class ApprovalGrant:
         return (
             self.issued_at <= now < self.expires_at
             and self.action_digest == action_digest(action)
+            and self.reasons == tuple(sorted(reasons))
+        )
+
+    def is_valid_for_digest(
+        self,
+        digest: str,
+        reasons: tuple[str, ...],
+        *,
+        now: datetime,
+    ) -> bool:
+        if now.tzinfo is None:
+            raise ValueError("validation timestamp must be timezone-aware")
+        return (
+            self.issued_at <= now < self.expires_at
+            and self.action_digest == digest
             and self.reasons == tuple(sorted(reasons))
         )
 
@@ -94,9 +141,14 @@ class BoundApprovalGate:
         self._grants[grant.grant_id] = grant
 
     def authorize(self, action: Action, reasons: tuple[str, ...]) -> ApprovalGrant | None:
+        return self.authorize_digest(action_digest(action), reasons)
+
+    def authorize_digest(
+        self, digest: str, reasons: tuple[str, ...]
+    ) -> ApprovalGrant | None:
         now = self._clock()
         for grant_id, grant in tuple(self._grants.items()):
-            if grant.is_valid(action, reasons, now=now):
+            if grant.is_valid_for_digest(digest, reasons, now=now):
                 del self._grants[grant_id]
                 return grant
         return None

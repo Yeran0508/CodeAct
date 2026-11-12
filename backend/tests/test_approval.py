@@ -75,3 +75,28 @@ def test_gate_rejects_naive_validation_clock_and_duplicate_id() -> None:
         gate.authorize(action, REASONS)
     with pytest.raises(ValueError, match="already exists"):
         BoundApprovalGate([grant]).add(grant)
+
+
+def test_grant_can_bind_a_non_action_sha256_digest() -> None:
+    digest = "a" * 64
+    grant = ApprovalGrant.issue_for_digest(
+        digest,
+        ("MCP tool mutates state",),
+        approver="user@example.test",
+        ttl=timedelta(minutes=5),
+        now=NOW,
+    )
+    gate = BoundApprovalGate([grant], clock=lambda: NOW)
+    assert gate.authorize_digest(digest, ("MCP tool mutates state",)) == grant
+    assert gate.authorize_digest(digest, ("MCP tool mutates state",)) is None
+
+
+def test_non_action_grant_rejects_invalid_digest() -> None:
+    with pytest.raises(ValueError, match="SHA-256"):
+        ApprovalGrant.issue_for_digest(
+            "not-a-digest",
+            (),
+            approver="user",
+            ttl=timedelta(minutes=1),
+            now=NOW,
+        )

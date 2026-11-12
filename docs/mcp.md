@@ -22,6 +22,18 @@ The child receives only PATH and explicitly configured environment variables. Pa
 and unrelated values are not inherited implicitly. Server stdout is protocol-only; diagnostics
 belong on stderr.
 
+## Tool-call safety
+
+The client calls only names returned by tools/list. Arguments are validated against each tool's
+Draft 2020-12 inputSchema with jsonschema 4.26.0 before any request is sent.
+
+Host-owned McpToolPolicy rules classify server_id:tool_name as read-only, write, or high-risk.
+Missing rules default to high-risk. Server annotations may elevate a host rule when
+destructiveHint or openWorldHint is true, but readOnlyHint cannot lower host policy.
+
+Write and high-risk calls require a one-time ApprovalGrant. Its SHA-256 covers the exact server
+ID, tool name, and canonical arguments. Changed arguments cannot reuse an earlier grant.
+
 ## References
 
 - [MCP lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)

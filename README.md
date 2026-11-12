@@ -24,10 +24,11 @@ M0 and M1 are implemented and locally verified:
 - rejection of pre-existing workspace symlinks that resolve outside the workspace boundary;
 - Python 3.12 packaging, Docker test image, Ruff/pytest/coverage gates, and CI.
 
-M2-A is also implemented: an allowlisted stdio MCP client performs the pinned 2025-11-25
+M2-A and M2-B are also implemented: an allowlisted stdio MCP client performs the pinned 2025-11-25
 initialize lifecycle, validates JSON-RPC framing and capabilities, and discovers paginated tools.
-Tool invocation, schema validation, unified approval, and untrusted result wrapping remain the
-next M2 modules.
+Discovered tools use Draft 2020-12 argument validation and host-owned risk rules; mutating or
+high-risk calls require a one-time grant bound to the exact server, tool, and arguments.
+Untrusted result wrapping and audit integration remain the next M2 module.
 
 This checkpoint does not claim an MCP connection, warm container pool,
 SWE-bench result, model-quality improvement, or OpenHands contribution. Those are evidence-gated

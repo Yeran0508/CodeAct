@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -44,3 +46,13 @@ class McpTool:
         if not isinstance(description, str) or not isinstance(annotations, dict):
             raise ValueError(f"MCP tool {name} metadata is invalid")
         return cls(name, description, schema, annotations)
+
+
+def tool_call_digest(server_id: str, tool_name: str, arguments: dict[str, Any]) -> str:
+    payload = json.dumps(
+        {"arguments": arguments, "server_id": server_id, "tool_name": tool_name},
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return hashlib.sha256(payload.encode()).hexdigest()
