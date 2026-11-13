@@ -70,6 +70,10 @@ language-model task accuracy.
 
 ### M5: Evaluation
 
+Status: completed for the deterministic local fixture benchmark and verified on 2026-11-12. See
+the M5 baseline comparison report. No SWE-bench run is claimed because the official harness has not
+been installed and validated in this repository.
+
 - Parallel runner with one clean sandbox per task and resumable manifests.
 - Deterministic local benchmark before SWE-bench.
 - Code-action and JSON-tool baselines under equal budgets.

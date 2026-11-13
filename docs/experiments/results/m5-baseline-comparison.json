@@ -1,0 +1,77 @@
+{
+  "approval_policy": "not applicable: trusted deterministic fixture plans",
+  "budget": {
+    "command_timeout_seconds": 30,
+    "max_actions": 4,
+    "max_input_tokens": 2000,
+    "max_output_tokens": 1000,
+    "pool_size": 3,
+    "workers": 3
+  },
+  "comparison": {
+    "code_action": {
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0,
+      "duration_p50_ms": 1457.869,
+      "duration_p95_ms": 2047.665,
+      "duration_total_ms": 9152.67,
+      "failure_categories": {},
+      "input_tokens": 216,
+      "output_tokens": 353,
+      "retries": 0,
+      "success_rate": 1.0,
+      "successes": 6,
+      "tasks": 6,
+      "timeouts": 0
+    },
+    "json_tool": {
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 0,
+      "duration_p50_ms": 2084.628,
+      "duration_p95_ms": 2735.625,
+      "duration_total_ms": 12778.329,
+      "failure_categories": {},
+      "input_tokens": 216,
+      "output_tokens": 696,
+      "retries": 0,
+      "success_rate": 1.0,
+      "successes": 6,
+      "tasks": 6,
+      "timeouts": 0
+    }
+  },
+  "dataset": "benchmarks/codeact-local-v1.json",
+  "dataset_sha256": "a65ae233bdf11347dd0a406c67dc1d040d6c3efe920dfa7ff150176929cdb5e6",
+  "docker_client_server": "27.4.0/27.4.0",
+  "evaluator": {
+    "pass_marker": "CODEACT_EVALUATOR_PASS",
+    "type": "trusted in-container assertions"
+  },
+  "git_commit": "b12344eda621e5e119d89034bfee0f8d942fba9c",
+  "host": "macOS-15.3.1-x86_64-i386-64bit",
+  "image": "python:3.12.10-slim",
+  "image_id": "sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db",
+  "model": {
+    "cache_behavior": "disabled",
+    "context_limit": 2000,
+    "decoding": "deterministic semantic fixture",
+    "id": "deterministic-fixture-model-v1",
+    "seed": 20261112
+  },
+  "network_policy": "none",
+  "recorded_at": "2026-11-13T01:37:23.756236+00:00",
+  "schema_version": 1,
+  "task_ids": [
+    "csv-maximum",
+    "inventory-total",
+    "nested-report",
+    "normalize-words",
+    "stateful-two-step",
+    "sum-integers"
+  ],
+  "unsupported_claims": [
+    "No production language-model quality conclusion",
+    "No production-provider token or cache conclusion",
+    "No SWE-bench or OpenHands result"
+  ]
+}

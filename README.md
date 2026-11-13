@@ -83,6 +83,12 @@ M5-C adds two round-tripped action codecs around one seeded semantic fixture mod
 canonical JSON-tool modes share prompts, plans, Docker execution, evaluator, and enforced action,
 input-token, and output-token budgets; only the serialized action representation changes.
 
+M5-D completes the local evaluation milestone. On six deterministic tasks, both modes passed 6/6
+with zero retries, timeouts, or failures and identical 216 input tokens. The fixture reported 353
+Code-action versus 696 JSON-tool output tokens. Raw manifests include per-task latency and usage;
+the aggregate includes P50/P95 latency and failure categories. This is harness evidence using a
+semantic fixture—not a production-model comparison—and no SWE-bench result is claimed.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.
@@ -116,5 +122,6 @@ claim.
 - [M3 isolation acceptance](docs/experiments/2026-11-12-m3-isolation-acceptance.md)
 - [M3 cold-versus-warm benchmark](docs/experiments/2026-11-12-m3-warm-pool-benchmark.md)
 - [M4 long-context summary comparison](docs/experiments/2026-11-12-m4-summary-comparison.md)
+- [M5 equal-budget baseline comparison](docs/experiments/2026-11-12-m5-baseline-comparison.md)
 - [MCP integration](docs/mcp.md)
 - [Chinese learning notes](CodeAct学习笔记.txt)

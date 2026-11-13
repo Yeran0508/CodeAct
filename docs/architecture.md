@@ -141,3 +141,9 @@ DeterministicFixtureModel selects typed actions, then either a Code-action codec
 JSON-tool codec encodes and decodes them before execution. Both modes share task prompts, semantic
 plans, Docker harness, evaluator, and enforced action/input/output budgets. The transparent fixture
 tokenizer reports representation-dependent output usage; it is not a production model tokenizer.
+
+Evaluation metrics are derived from completed raw manifests rather than handwritten report values.
+The aggregator reports task count, success rate, total/P50/P95 latency, provider usage fields,
+retries, timeouts, and sorted failure categories. Runner exceptions appear as `runner_error`; task
+failures retain the harness category. Empty manifests return zero-valued metrics instead of
+inventing samples.
