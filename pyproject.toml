@@ -28,6 +28,7 @@ where = ["backend"]
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
 addopts = "-ra --strict-markers"
+pythonpath = ["."]
 markers = ["integration: requires Docker"]
 
 [tool.coverage.run]
