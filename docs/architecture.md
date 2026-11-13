@@ -128,3 +128,10 @@ Before and after each attempt, an atomic JSON manifest records payload digest, t
 status, result, and exception text. Completed evaluations are skipped on resume, while failed or
 crash-interrupted records are retried in a freshly cleared workspace. A changed task set or payload
 is rejected instead of silently mixing experiment versions.
+
+The local benchmark dataset is representation-neutral: each task contains an instruction, validated
+relative setup files, and trusted evaluator code, but no candidate solution. LocalBenchmarkHarness
+leases one clean Docker container, performs host-owned setup, runs a bounded candidate plan, and
+evaluates final in-container state before releasing and destroying that container. It emits the same
+result schema for every action representation, including duration, usage, retries, timeouts, and a
+failure category.

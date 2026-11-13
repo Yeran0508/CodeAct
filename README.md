@@ -73,6 +73,12 @@ M5-A adds a bounded parallel evaluation runner with unique clean task workspaces
 manifests, payload-digest validation, crash recovery, failed-attempt retry, and completed-task
 resume. Benchmark workers—not host directories—remain responsible for one clean sandbox per task.
 
+M5-B adds the representation-neutral `codeact-local-v1` dataset and Docker harness. Six deterministic
+file tasks share validated setup, action/time budgets, and trusted evaluators; each task performs
+setup, candidate actions, and evaluation inside one clean container that is destroyed afterward.
+`PYTHONPATH=backend python3 scripts/verify_m5_local.py` verifies all six tasks in parallel and then
+confirms that manifest resume skips every completed result.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.

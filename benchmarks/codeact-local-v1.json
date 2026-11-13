@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "task_id": "sum-integers",
+      "instruction": "Read numbers.txt and write the integer sum to result.txt.",
+      "setup_files": {"numbers.txt": "7\n-2\n13\n24\n"},
+      "evaluator_python": "from pathlib import Path\nassert Path('result.txt').read_text().strip() == '42'\nprint('CODEACT_EVALUATOR_PASS')"
+    },
+    {
+      "task_id": "normalize-words",
+      "instruction": "Write unique lowercase words from words.txt to result.txt in sorted order, one per line.",
+      "setup_files": {"words.txt": "Pear apple PEAR banana Apple\n"},
+      "evaluator_python": "from pathlib import Path\nassert Path('result.txt').read_text() == 'apple\\nbanana\\npear\\n'\nprint('CODEACT_EVALUATOR_PASS')"
+    },
+    {
+      "task_id": "inventory-total",
+      "instruction": "Read inventory.json and write the total quantity as an integer to result.txt.",
+      "setup_files": {"inventory.json": "[{\"item\":\"a\",\"qty\":4},{\"item\":\"b\",\"qty\":9},{\"item\":\"c\",\"qty\":2}]"},
+      "evaluator_python": "from pathlib import Path\nassert Path('result.txt').read_text().strip() == '15'\nprint('CODEACT_EVALUATOR_PASS')"
+    },
+    {
+      "task_id": "csv-maximum",
+      "instruction": "Read scores.csv and write the name with the highest score to result.txt.",
+      "setup_files": {"scores.csv": "name,score\nAda,91\nLinus,87\nGrace,99\n"},
+      "evaluator_python": "from pathlib import Path\nassert Path('result.txt').read_text().strip() == 'Grace'\nprint('CODEACT_EVALUATOR_PASS')"
+    },
+    {
+      "task_id": "nested-report",
+      "instruction": "Create output/report.txt containing READY followed by a newline.",
+      "setup_files": {},
+      "evaluator_python": "from pathlib import Path\nassert Path('output/report.txt').read_text() == 'READY\\n'\nprint('CODEACT_EVALUATOR_PASS')"
+    },
+    {
+      "task_id": "stateful-two-step",
+      "instruction": "Read seed.txt, double its integer, and write the result to result.txt. The solution may use two actions.",
+      "setup_files": {"seed.txt": "21\n"},
+      "evaluator_python": "from pathlib import Path\nassert Path('result.txt').read_text().strip() == '42'\nprint('CODEACT_EVALUATOR_PASS')"
+    }
+  ]
+}
