@@ -69,6 +69,10 @@ path/error/decision/unresolved facts in 0/10 cases; structured summaries retaine
 used 13,389 versus 13,715 fixture-provider input tokens (2.38% fewer). Both modes reported 963
 cache-read tokens. This measures synthetic fact retention and fixture accounting, not LLM accuracy.
 
+M5-A adds a bounded parallel evaluation runner with unique clean task workspaces, atomic JSON
+manifests, payload-digest validation, crash recovery, failed-attempt retry, and completed-task
+resume. Benchmark workers—not host directories—remain responsible for one clean sandbox per task.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.

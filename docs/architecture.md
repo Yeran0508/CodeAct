@@ -118,3 +118,13 @@ steps, and the latest observation live in a separate dynamic suffix. Provider ad
 ModelResponse containing exact token usage; AgentRuntime accumulates input, output, cache-read, and
 cache-write counts without estimating tokens from characters. Cache semantics remain
 provider-specific and must be normalized by the adapter.
+
+## Evaluation runner
+
+ParallelEvaluationRunner sorts immutable task IDs, creates a SHA-256-named clean workspace for each
+attempt, and bounds concurrency with a thread pool. The worker contract owns exactly one clean
+execution sandbox for that task lifecycle; the runner does not treat a host directory as a sandbox.
+Before and after each attempt, an atomic JSON manifest records payload digest, timestamps, attempts,
+status, result, and exception text. Completed evaluations are skipped on resume, while failed or
+crash-interrupted records are retried in a freshly cleared workspace. A changed task set or payload
+is rejected instead of silently mixing experiment versions.
