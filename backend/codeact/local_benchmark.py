@@ -28,6 +28,7 @@ class CandidatePlan:
     answer: str
     usage: ProviderUsage
     retries: int = 0
+    planning_failure: str | None = None
 
 
 def _validate_relative_path(value: str) -> None:
@@ -110,6 +111,17 @@ class LocalBenchmarkHarness:
         mode: str,
     ) -> dict[str, Any]:
         started = time.perf_counter()
+        if plan.planning_failure:
+            return self._result(
+                task,
+                plan,
+                mode,
+                False,
+                0,
+                plan.planning_failure,
+                0,
+                started,
+            )
         if len(plan.actions) > self.max_actions:
             return self._result(
                 task,

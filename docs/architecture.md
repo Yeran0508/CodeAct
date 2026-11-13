@@ -135,3 +135,9 @@ leases one clean Docker container, performs host-owned setup, runs a bounded can
 evaluates final in-container state before releasing and destroying that container. It emits the same
 result schema for every action representation, including duration, usage, retries, timeouts, and a
 failure category.
+
+The comparison fixture separates semantic planning from representation. One seeded
+DeterministicFixtureModel selects typed actions, then either a Code-action codec or canonical
+JSON-tool codec encodes and decodes them before execution. Both modes share task prompts, semantic
+plans, Docker harness, evaluator, and enforced action/input/output budgets. The transparent fixture
+tokenizer reports representation-dependent output usage; it is not a production model tokenizer.

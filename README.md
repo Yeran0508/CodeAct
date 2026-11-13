@@ -79,6 +79,10 @@ setup, candidate actions, and evaluation inside one clean container that is dest
 `PYTHONPATH=backend python3 scripts/verify_m5_local.py` verifies all six tasks in parallel and then
 confirms that manifest resume skips every completed result.
 
+M5-C adds two round-tripped action codecs around one seeded semantic fixture model. Code-action and
+canonical JSON-tool modes share prompts, plans, Docker execution, evaluator, and enforced action,
+input-token, and output-token budgets; only the serialized action representation changes.
+
 This checkpoint does not claim a SWE-bench result, model-quality improvement, production security
 certification, or an OpenHands contribution. Those are evidence-gated or explicitly out-of-scope
 claims in requirements.md.
